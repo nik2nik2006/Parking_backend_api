@@ -18,9 +18,8 @@ def send_sms_otp(phone_number, otp):
 
 def get_user_or_create(code_id):
     code = Code.objects.get(id=code_id)
-    user = User.objects.get_or_create(username=code.phone_number)
-    user.password = code.otp
-    user.first_name = code.username
-    user.save()
+    user = User.objects.get_or_create(username=code.phone_number,
+                                      password=code.otp,
+                                      first_name=code.username)
     return user
 

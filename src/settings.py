@@ -15,6 +15,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = "users.User"
 
 # Application definition
 
@@ -29,6 +30,7 @@ INSTALLED_APPS = [
 
     'smscode',
     'api',
+    'users'
 ]
 
 MIDDLEWARE = [
