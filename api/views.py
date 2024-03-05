@@ -2,14 +2,20 @@ import random
 
 import jwt
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.http import QueryDict
 from django.shortcuts import render, get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from api.serializers import SendSMSGetSerializer, SendSMSSerializer, UserSerializer
-from api.utils import generate_otp, send_sms_otp, get_user_or_create
+from api.utils import generate_otp, send_sms_otp
 from smscode.models import Code
+from users.serializers import UserCreateSerializer
+
+
+User = get_user_model()
 
 
 class SendSMSView(APIView):
@@ -46,15 +52,18 @@ class VerifySMSView(APIView):
             return Response({'errors': 'Код проверки не верный'},
                             status=status.HTTP_400_BAD_REQUEST)
         print('Проверка прошла')
-        print('Register')
-        user = get_user_or_create(code_id=code.id)
+        serializer = UserCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # user = User.objects.create(serializer.validated_data)
+        user = User.objects.create_user(username=request.data['username'],
+                                        password=request.data['password'],
+                                        commit=None,
+                                        first_name=request.data['first_name'],
+                                        otp=int(request.data['otp']))
         print(user)
-        serializer = UserSerializer(user)
-        # user = register(request)
-        # print(user)
-        # print('Singin')
-        # login(user.phone_number, user.password)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # serializer = UserCreateSerializer(data=)
+        return Response(request.data)
+        # return Response(serializer.data, status=status.HTTP_201_CREATED)
         # return Response({'text': 'Всё супер! Код подошёл'},
         #                 status=status.HTTP_200_OK)
 
