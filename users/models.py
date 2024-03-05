@@ -1,40 +1,48 @@
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import PermissionsMixin
 from django.db import models
-from django.contrib.auth.models import AbstractUser, UserManager
+from django.utils.translation import gettext_lazy as _
 
 
-class CustomUserManager(UserManager):
-    # def __init__(self):
-    #     self.name = None
-    #     self._password = None
-    #     self.password = None
+class UserManager(BaseUserManager):
+    use_in_migrations = True
 
-    def _create_user(
-            self,
-            username: str,
-            password: str,
-            commit: bool,
-            is_staff: bool = False,
-            is_superuser: bool = False
-    ):
-        user = User(username=username, is_staff=is_staff, is_superuser=is_superuser)
+    def _create_user(self, phone, password, **extra_fields):
+        """
+        Creates and saves a User with the given email and password.
+        """
+        if not phone:
+            raise ValueError('The given phone must be set')
+        # email = self.normalize_email(email)
+        user = self.model(phone=phone, **extra_fields)
         user.set_password(password)
-        if commit:
-            user.save()
+        user.save(using=self._db)
         return user
 
-    def create_superuser(self, username: str, password: str, commit: bool = True, first_name=None, otp=None):
-        return self._create_user(username, password, first_name, otp, is_staff=True, is_superuser=True, commit=commit)
+    def create_user(self, phone, password=None, **extra_fields):
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(phone, password, **extra_fields)
 
-    def create_user(self, username: str, password: str, commit: bool = True, first_name=None, otp=None):
-        return self._create_user(username, password, first_name, otp, commit=commit)
+    def create_superuser(self, phone, password, **extra_fields):
+        extra_fields.setdefault('is_superuser', True)
 
-    # def set_password(self, raw_password):
-    #     self.password = make_password(raw_password)
-    #     self._password = raw_password
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self._create_user(phone, password, **extra_fields)
 
 
-class User(AbstractUser):
-    otp = models.PositiveIntegerField(blank=True, null=True)
+class User(AbstractBaseUser, PermissionsMixin):
+    phone = models.CharField('Phone number', unique=True, max_length=12)
+    first_name = models.CharField(_('first name'), max_length=30, blank=True)
+    date_joined = models.DateTimeField(_('date joined'), auto_now_add=True)
+    is_active = models.BooleanField(_('active'), default=True)
+    is_staff = models.BooleanField(_('active'), default=True)
+
+    objects = UserManager()
+
+    USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = []
-    objects = CustomUserManager()
+
+    def __str__(self):
+        return f"{self.phone} - {self.first_name}"
