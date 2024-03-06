@@ -6,31 +6,27 @@ User = get_user_model()
 
 
 class UserLoginSerializer(serializers.Serializer):
-    phone = serializers.CharField(max_length=12, required=True)
+    mobile = serializers.CharField(max_length=12, required=True)
     password = serializers.CharField(required=True, write_only=True)
 
 
 class AuthUserSerializer(serializers.ModelSerializer):
-    auth_token = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'phone', 'first_name', 'is_active', 'is_staff', 'auth_token')
-        read_only_fields = ('id', 'is_active', 'is_staff')
-
-    def get_auth_token(self, obj):
-        token = Token.objects.create(user=obj)
-        return token.key
+        fields = ('id', 'mobile', 'first_name', 'is_active', 'is_staff')
+        # fields = ('id', 'auth_token',)
+        # read_only_fields = ('id', 'is_active', 'is_staff')
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'phone', 'password', 'first_name')
+        fields = ('id', 'mobile', 'password', 'first_name')
 
     def validate_phone(self, value):
-        user = User.objects.filter(phone=value)
+        user = User.objects.filter(mobile=value)
         if user:
             raise serializers.ValidationError("Phone is already taken")
         return value

@@ -3,8 +3,8 @@ from rest_framework.authtoken.models import Token
 from rest_framework import serializers
 
 
-def get_and_authenticate_user(phone, password):
-    user = authenticate(username=phone, password=password)
+def get_and_authenticate_user(mobile, password):
+    user = authenticate(username=mobile, password=password)
     if user is not None:
         try:
             token = Token.objects.get(user_id=user.id)
@@ -15,8 +15,13 @@ def get_and_authenticate_user(phone, password):
         raise serializers.ValidationError("Invalid username/password. Please try again!")
 
 
-def create_user_account(phone, password, first_name="", **extra_fields):
+def create_user_account(mobile, password, first_name="", **extra_fields):
     user = get_user_model().objects.create_user(
-        phone=phone, password=password,
+        mobile=mobile, password=password,
         first_name=first_name, **extra_fields)
     return user
+
+
+def send_sms_with_callback_token(user, mobile_token, **kwargs):
+    print(user, ' | ', mobile_token, ' | ', kwargs)
+    return True

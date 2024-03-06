@@ -1,11 +1,14 @@
 from django.contrib.auth import get_user_model, logout
 from django.core.exceptions import ImproperlyConfigured
 from rest_framework import viewsets, status
+from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from . import serializers
+from .serializers import AuthUserSerializer
 from .utils import get_and_authenticate_user, create_user_account
 
 User = get_user_model()
@@ -57,3 +60,15 @@ class AuthViewSet(viewsets.GenericViewSet):
         if self.action in self.serializer_classes.keys():
             return self.serializer_classes[self.action]
         return super().get_serializer_class()
+
+
+class GetAuthMeViewSet(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def get(self, request, format=None):
+        user = request.user
+        content = {
+            'user': str(AuthUserSerializer(user).data),  # `django.contrib.auth.User` instance.
+            'auth': str(request.auth),  # None
+        }
+        return Response(content)

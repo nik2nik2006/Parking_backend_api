@@ -17,6 +17,12 @@ ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = "users.User"
 
+PASSWORDLESS_AUTH = {
+   'PASSWORDLESS_AUTH_TYPES': ['MOBILE'],
+    # 'PASSWORDLESS_SMS_CALLBACK': 'drfpasswordless.utils.send_sms_with_callback_token',
+    'PASSWORDLESS_SMS_CALLBACK': 'users.utils.send_sms_with_callback_token',
+}
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -28,8 +34,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'drfpasswordless',
 
-    'smscode',
     'api',
     'users'
 ]
