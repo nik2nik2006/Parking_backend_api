@@ -12,7 +12,6 @@ class UserLoginSerializer(serializers.Serializer):
 
 class AuthUserSerializer(serializers.ModelSerializer):
     auth_token = serializers.SerializerMethodField()
-    # is_staff = serializers.BooleanField(source='user.is_staff')
 
     class Meta:
         model = User
@@ -37,7 +36,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         return value
 
     def validate_password(self, value):
-        password_validation.validate_password(value)
+        # password_validation.validate_password(value)
         return value
 
 
