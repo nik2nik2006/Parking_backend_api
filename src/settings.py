@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'drfpasswordless',
 
     'api',
-    'users'
+    'users',
+    'parking'
 ]
 
 MIDDLEWARE = [
