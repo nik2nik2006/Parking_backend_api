@@ -1,3 +1,7 @@
 from django.contrib import admin
 
-# Register your models here.
+from parking.models import Sale, ParkingSpace, Price
+
+admin.site.register(ParkingSpace)
+admin.site.register(Sale)
+admin.site.register(Price)

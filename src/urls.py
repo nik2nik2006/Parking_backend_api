@@ -9,4 +9,5 @@ urlpatterns = [
     path('', HomeView.as_view()),
     path('auth/me/', GetAuthMeViewSet.as_view()),
     path('admin/', admin.site.urls),
+    path('api/', include('api.urls')),
 ]

@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model, logout
 from django.core.exceptions import ImproperlyConfigured
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
@@ -7,8 +8,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from api.serializers import SaleSerializer
 from . import serializers
-from .serializers import AuthUserSerializer
+from .serializers import AuthUserSerializer, UserWithSalesSerializer
 from .utils import get_and_authenticate_user, create_user_account
 
 User = get_user_model()
@@ -72,3 +74,21 @@ class GetAuthMeViewSet(APIView):
             'auth': str(request.auth),  # None
         }
         return Response(content)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = AuthUserSerializer
+    permission_classes = (AllowAny,)
+
+    @action(detail=False,
+            methods=['get'],
+            permission_classes=(IsAuthenticated,))
+    def sales(self, request):
+        user = request.user
+        queryset = User.objects.filter(sales__user=user)
+        serializer = UserWithSalesSerializer(
+            queryset,
+            many=True,
+            context={'request': request})
+        return Response(serializer.data)
