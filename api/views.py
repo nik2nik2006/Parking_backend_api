@@ -11,7 +11,7 @@ from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from api.serializers import ParkingSpaceSerializer, SaleSerializer
+from api.serializers import ParkingSpaceSerializer, SaleSerializer, SaleCreatSerializer
 from parking.models import ParkingSpace, Sale
 
 User = get_user_model()
@@ -69,6 +69,7 @@ class SaleViewSet(viewsets.ModelViewSet):
     serializer_class = SaleSerializer
     permission_classes = (AllowAny,)
 
-    class Meta:
-        model = Sale
-        fields = '__all__'
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return SaleSerializer
+        return SaleCreatSerializer

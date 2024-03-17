@@ -1,24 +1,32 @@
+from datetime import datetime
+
 from rest_framework import serializers
 
 from parking.models import ParkingSpace, Sale
+from users.serializers import UserRegisterSerializer
 
 
 class ParkingSpaceSerializer(serializers.ModelSerializer):
     """Сериалайзер модели ParkingSpace."""
-    # is_available = serializers.SerializerMethodField()
+    is_available = serializers.SerializerMethodField()
 
     class Meta:
         model = ParkingSpace
         fields = '__all__'
-    #
-    # def get_is_available(self, obj):
-    #     if ParkingSpace.objects.get(pk = obj.pk,
-    #                                 self.is_works):
-    #         return True
-    #     return False
+
+    def get_is_available(self, obj):
+        current_date = datetime.now().date()
+        if Sale.objects.filter(
+            parking=obj,
+            rent_to__gt=current_date
+            ).exists():
+            return False
+        return True
 
 
 class SaleSerializer(serializers.ModelSerializer):
+    """Сериалайзер модели Sale."""
+    user = UserRegisterSerializer()
 
     class Meta:
         model = Sale
